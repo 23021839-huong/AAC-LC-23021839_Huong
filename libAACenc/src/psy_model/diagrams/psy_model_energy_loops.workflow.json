@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "psy_model · bốn vòng lặp lồng nhau khi tính năng lượng",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "channel-loop", "label": "Vòng 1 · kênh ch" },
+    { "id": "window-loop", "label": "Vòng 2 · cửa sổ w" },
+    { "id": "band-loop", "label": "Vòng 3 · dải sfb" },
+    { "id": "line-loop", "label": "Vòng 4 · hệ số line" }
+  ],
+  "mainPath": ["channel-check", "window-check", "band-check", "sum-reset", "line-check", "line-accumulate"],
+  "nodes": [
+    { "id": "channel-check", "lane": "channel-loop", "col": 0, "type": "messagebus", "label": "ch < C ?", "sublabel": "Khởi tạo ch = 0 khi vào", "tag": "psy_main.cpp:720", "width": 214 },
+    { "id": "window-check", "lane": "window-loop", "col": 1, "type": "messagebus", "label": "w < W[ch] ?", "sublabel": "W = 1 long hoặc 8 short", "tag": "psy_main.cpp:721", "width": 216 },
+    { "id": "band-check", "lane": "band-loop", "col": 2, "type": "messagebus", "label": "sfb < B[ch] ?", "sublabel": "B[ch] = sfbActive", "tag": "band_nrg.cpp:155", "width": 208 },
+    { "id": "sum-reset", "lane": "band-loop", "col": 3, "type": "backend", "label": "Khởi tạo tổng", "sublabel": "Chọn scale; tmp = 0", "tag": "line = offset[sfb]", "width": 208 },
+    { "id": "line-check", "lane": "line-loop", "col": 3, "type": "messagebus", "label": "line < offset[sfb+1] ?", "sublabel": "Hệ số phổ trong dải hiện tại", "tag": "band_nrg.cpp:161", "width": 252 },
+    { "id": "line-accumulate", "lane": "line-loop", "col": 4, "type": "backend", "label": "Cộng bình phương", "sublabel": "spec = X[line] << scale", "tag": "tmp += spec² / 2", "width": 228 },
+    { "id": "band-store", "lane": "band-loop", "col": 5, "type": "backend", "label": "Lưu E và log E", "sublabel": "E[sfb] = 2 × tmp; hiệu chỉnh log", "tag": "band_nrg.cpp:165–181", "width": 238 },
+    { "id": "window-maximum", "lane": "window-loop", "col": 5, "type": "backend", "label": "Cập nhật maxNrg", "sublabel": "Gộp cực đại của cửa sổ", "tag": "psy_main.cpp:724–730", "width": 220 },
+    { "id": "energy-finish", "lane": "channel-loop", "col": 5, "type": "external", "label": "Ra khỏi bốn vòng", "sublabel": "Tính nrgShift rồi finalShift", "tag": "Tiếp tục từ dòng 734", "width": 228 }
+  ],
+  "edges": [
+    { "id": "enter-channel", "from": "channel-check", "to": "window-check", "label": "Đúng · w = 0", "role": "main" },
+    { "id": "enter-window", "from": "window-check", "to": "band-check", "label": "Đúng · sfb = 0", "role": "main" },
+    { "id": "enter-band", "from": "band-check", "to": "sum-reset", "label": "Đúng", "role": "main" },
+    { "id": "enter-line", "from": "sum-reset", "to": "line-check", "role": "main" },
+    { "id": "line-yes", "from": "line-check", "to": "line-accumulate", "label": "Đúng", "role": "main" },
+    { "id": "line-repeat", "from": "line-accumulate", "to": "line-check", "label": "line++", "role": "return", "variant": "emphasis", "width": 2.4 },
+    { "id": "line-done", "from": "line-check", "to": "band-store", "label": "Sai · hết line", "role": "branch" },
+    { "id": "band-repeat", "from": "band-store", "to": "band-check", "label": "sfb++", "role": "return", "variant": "emphasis", "width": 2.4 },
+    { "id": "band-done", "from": "band-check", "to": "window-maximum", "label": "Sai · hết dải", "role": "branch" },
+    { "id": "window-repeat", "from": "window-maximum", "to": "window-check", "label": "w++", "role": "return", "variant": "emphasis", "width": 2.4 },
+    { "id": "window-done", "from": "window-check", "to": "channel-check", "label": "Sai · ch++", "role": "return", "variant": "emphasis", "width": 2.4 },
+    { "id": "channel-done", "from": "channel-check", "to": "energy-finish", "label": "Sai · hết kênh", "role": "branch" }
+  ],
+  "cards": [
+    { "dot": "violet", "title": "Mũi tên đậm quay lại = vòng lặp", "items": ["Bốn cấp: ch → w → sfb → line. Mỗi lần sang kênh, cửa sổ hoặc dải mới, chỉ số bên trong được khởi tạo lại.", "X là con trỏ phổ tại cửa sổ w; các dịch bit giữ độ chính xác fixed-point, không phải scalefactor lượng tử."] },
+    { "dot": "cyan", "title": "Phạm vi chính xác của sơ đồ", "items": ["Chi tiết lượt CheckBandEnergyOptim: psy_main.cpp:720–732 và band_nrg.cpp:143–190, nhánh zeroSpec == FALSE.", "Lượt tính headroom ở trước; chọn scale chung và tạo T ban đầu ở sau. Không đưa debug/experiment vào vòng chính."] }
+  ]
+}

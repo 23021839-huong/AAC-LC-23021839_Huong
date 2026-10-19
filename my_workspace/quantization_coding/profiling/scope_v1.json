@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scope_id": "aac_lc_qc_step0_v1",
+  "primary_configuration": {
+    "audio_object_type": 2,
+    "profile": "AAC-LC",
+    "frame_length_samples": 1024,
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "channel_mode": "MODE_1",
+    "transport": "ADTS",
+    "rate_control": "CBR",
+    "bitrate_bps": 64000,
+    "afterburner": 1
+  },
+  "minimum_repeats_per_case_and_build": 3,
+  "primary_corpus_classes": [
+    "silence",
+    "dc",
+    "impulse",
+    "sine",
+    "sweep",
+    "deterministic_noise",
+    "near_clip",
+    "transient"
+  ],
+  "real_audio_required_for_gate": [
+    "speech",
+    "stable_music",
+    "transient_music_or_applause"
+  ],
+  "expansion_matrix_after_primary_gate": {
+    "channels": [1, 2],
+    "sample_rate_hz": [44100, 48000],
+    "bitrate_bps": [32000, 48000, 64000, 96000, 128000],
+    "afterburner": [0, 1],
+    "window_sequences": ["LONG", "START", "SHORT", "STOP"]
+  },
+  "dma_matrix": {
+    "sizes_bytes": [4096, 8192, 16384, 32768],
+    "directions": ["mm2s", "s2mm", "roundtrip"],
+    "wait_modes": ["poll", "irq"],
+    "cache_modes": ["cacheable", "noncacheable"]
+  },
+  "physical_bus_counter_artifact": {
+    "filename": "axi_bus_counters.csv",
+    "required_columns": [
+      "direction",
+      "wait_mode",
+      "cache_mode",
+      "size_bytes",
+      "read_bytes",
+      "write_bytes",
+      "read_transactions",
+      "write_transactions"
+    ]
+  },
+  "xc7z020_capacity": {
+    "lut": 53200,
+    "ff": 106400,
+    "bram36": 140,
+    "dsp": 220
+  },
+  "qc_initial_incremental_budget": {
+    "lut": 12000,
+    "bram36": 40,
+    "dsp": 64
+  },
+  "required_statistics": ["p50", "p95", "p99", "max"],
+  "notes": [
+    "The primary gate is AAC-LC mono 48 kHz, 1024 samples, ADTS CBR 64 kb/s, Afterburner enabled.",
+    "Synthetic inputs do not replace the required real speech/music corpus.",
+    "Vivado post-route utilization, not device capacity alone, determines remaining PL budget."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "psy_model · luồng thuật toán và phạm vi vòng lặp",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "pcm-pass", "label": "A · PCM và biến đổi" },
+    { "id": "spectrum-pass", "label": "B · Phổ và mô hình nghe" },
+    { "id": "coding-pass", "label": "C · Ngưỡng và công cụ mã hóa" }
+  ],
+  "nodes": [
+    { "id": "pcm-input", "lane": "pcm-pass", "col": 0, "type": "external", "label": "PCM đầu vào", "sublabel": "Một element: 1 hoặc 2 kênh", "tag": "psy_main.cpp:424", "width": 206 },
+    { "id": "attack-detect", "lane": "pcm-pass", "col": 1, "type": "messagebus", "label": "Phát hiện attack", "sublabel": "Chọn long / start / short / stop", "tag": "↻ ch · dòng 500", "width": 206 },
+    { "id": "stereo-sync", "lane": "pcm-pass", "col": 2, "type": "backend", "label": "Đồng bộ cửa sổ", "sublabel": "SyncBlockSwitching cho L/R", "tag": "Rào đồng bộ · dòng 519", "width": 206 },
+    { "id": "mdct-pass", "lane": "pcm-pass", "col": 3, "type": "messagebus", "label": "Windowing + MDCT", "sublabel": "Long: 1024 · short: 8 × 128", "tag": "↻ ch · dòng 574", "width": 206 },
+    { "id": "lowpass-pass", "lane": "spectrum-pass", "col": 3, "type": "messagebus", "label": "Lowpass + kiểm tra 0", "sublabel": "Cắt phổ; quét line đến khi khác 0", "tag": "↻ ch → w → line · 638–675", "width": 206 },
+    { "id": "energy-pass", "lane": "spectrum-pass", "col": 2, "type": "messagebus", "label": "Năng lượng + scale", "sublabel": "Headroom → E, log E → T ban đầu", "tag": "↻ ch → w → sfb → line", "width": 206 },
+    { "id": "tone-pass", "lane": "spectrum-pass", "col": 1, "type": "messagebus", "label": "Phân tích tonality", "sublabel": "Nhánh long; tính khi bật PNS", "tag": "↻ ch · dòng 838", "width": 206 },
+    { "id": "tns-pass", "lane": "spectrum-pass", "col": 0, "type": "messagebus", "label": "TNS nếu được bật", "sublabel": "Detect → sync L/R → lọc → tính lại E", "tag": "Nhiều lượt ↻ ch → w", "width": 206 },
+    { "id": "masking-pass", "lane": "coding-pass", "col": 0, "type": "messagebus", "label": "Hoàn thiện ngưỡng", "sublabel": "Clip → spread → sàn PCM → pre-echo", "tag": "↻ ch → w → sfb · 1057–1175", "width": 206 },
+    { "id": "group-pass", "lane": "coding-pass", "col": 1, "type": "messagebus", "label": "M/S energy + grouping", "sublabel": "Nhóm short; chuẩn hóa mảng đầu ra", "tag": "M/S: w · grouping: ch", "width": 206 },
+    { "id": "tools-pass", "lane": "coding-pass", "col": 2, "type": "messagebus", "label": "PNS và stereo", "sublabel": "PNS detect → IS / MS → PNS code", "tag": "PNS: ch · stereo: cả cặp", "width": 206 },
+    { "id": "psy-result", "lane": "coding-pass", "col": 3, "type": "external", "label": "PSY_OUT → QC", "sublabel": "Phổ, E, ngưỡng, cửa sổ, tool info", "tag": "↻ ch · build output:1412", "width": 206 }
+  ],
+  "edges": [
+    { "id": "pcm-to-attack", "from": "pcm-input", "to": "attack-detect", "role": "main" },
+    { "id": "attack-to-sync", "from": "attack-detect", "to": "stereo-sync", "role": "main", "label": "Hết kênh" },
+    { "id": "sync-to-mdct", "from": "stereo-sync", "to": "mdct-pass", "role": "main" },
+    { "id": "mdct-to-lowpass", "from": "mdct-pass", "to": "lowpass-pass", "role": "main", "label": "Cùng ch" },
+    { "id": "lowpass-to-energy", "from": "lowpass-pass", "to": "energy-pass", "role": "main", "label": "Hết kênh" },
+    { "id": "energy-to-tone", "from": "energy-pass", "to": "tone-pass", "role": "main" },
+    { "id": "tone-to-tns", "from": "tone-pass", "to": "tns-pass", "role": "main" },
+    { "id": "tns-to-masking", "from": "tns-pass", "to": "masking-pass", "role": "main" },
+    { "id": "masking-to-group", "from": "masking-pass", "to": "group-pass", "role": "main" },
+    { "id": "group-to-tools", "from": "group-pass", "to": "tools-pass", "role": "main" },
+    { "id": "tools-to-result", "from": "tools-pass", "to": "psy-result", "role": "main" }
+  ],
+  "cards": [
+    { "dot": "violet", "title": "↻ là phạm vi lặp, không phải một vòng bao toàn bộ sơ đồ", "items": ["ch: 0…C−1, C = 1 hoặc 2; w: 0…W[ch]−1, W = 1 hoặc 8 (AAC-LC).", "sfb: dải scalefactor; line: hệ số MDCT bên trong dải. Các giai đoạn duyệt lại kênh độc lập."] },
+    { "dot": "cyan", "title": "Bám mã nguồn · psy_main.cpp:424–1472", "items": ["zeroSpec khởi tạo E/T bằng 0 trước bước sàn PCM; lược bớt LFE, LD/ELD và debug để rõ luồng AAC-LC.", "Spreading ngưỡng và spreading năng lượng là hai lượt riêng; QC nằm ngoài psyMain."] }
+  ]
+}
