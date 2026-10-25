@@ -4,7 +4,7 @@ Bản bàn giao nghiên cứu AAC-LC để đọc source, build và chạy lại
 
 ## Trạng thái bàn giao
 
-Phần 1: codec FDK, hệ thống build và các chương trình native cơ bản.
+Phần 1: codec FDK, hệ thống build và các chương trình native cơ bản. \n
 Phần 2: sáu WAV mẫu, thông tin nguồn và tool input đã được đưa sang. Xem my_workspace/INPUT/README.md. Phần 3: đã đưa Block Switching sang; giữ nguyên source theo lựa chọn của người dùng và ghi rõ bài DUT-REF FAIL do bảng window shape thiếu hàng LD. Xem my_workspace/block_switch/docs/verification.md và my_workspace/block_switch/README.md. Phần 4: đã đưa tool Window/MDCT, bốn policy window và bộ kiểm chứng sang; xem my_workspace/window_mdct/README.md. Phần 5: đã đưa FFT experiment, FFT/MDCT RTL, testbench, reference và flow PYNQ; xem my_workspace/window_mdct/experiments/fft/README.md và my_workspace/window_mdct/docs/rtl_workflow.md. Phần mềm được kiểm tra; mô phỏng GHDL/Vivado và chạy FPGA chưa thực thi. Phần 6: đã đưa Psy trace, khảo sát Tonality/TNS với PNS giữ native, input tools và RTL Psy hiện có; xem my_workspace/psychoacoustic_model/README.md. Đã kiểm chứng phần mềm; RTL Psy chưa đầy đủ và chưa mô phỏng GHDL trong lần này. Phần 7: đã đưa Quantization/Coding trace, spectral quantizer reference và profiling; xem my_workspace/quantization_coding/README.md. Native codec/model arithmetic giữ nguyên, bốn cấu hình/script được chỉnh đường dẫn có ghi hash trước/sau. Giao diện run.py và hướng dẫn tổng hợp sẽ được bàn giao ở phần cuối.
 
 Source lấy từ workspace fdk-aac hiện tại, đã có cách nhóm file và hook nghiên cứu.
