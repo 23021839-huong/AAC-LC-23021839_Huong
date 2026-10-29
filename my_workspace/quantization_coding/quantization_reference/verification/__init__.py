@@ -1,1 +1,0 @@
-"""Cross-model verification utilities."""

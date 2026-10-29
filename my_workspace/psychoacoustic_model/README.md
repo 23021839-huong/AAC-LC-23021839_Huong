@@ -1,9 +1,8 @@
 # Psychoacoustic Model AAC-LC
 
-Phần 6: tool quan sát native Psy, khảo sát Tonality/TNS, chuẩn bị input và source RTL hiện có.
-Source codec/hook đã có trong libAACenc/ từ phần 1; các tool/test/RTL ở đây được sao chép nguyên byte.
-
-## Cấu trúc và nhiệm vụ
+1. gioi thieu tong quan
+2. tinh trang du an
+3. Cấu trúc và nhiệm vụ
 
 ~~~text
 psychoacoustic_model/
@@ -31,7 +30,7 @@ WAV thực nằm tại my_workspace/INPUT/data/; không nhân đôi chúng ở �
 Manifest trong input/psy_external/ chỉ phục vụ generator loại nguồn đã dùng.
 Khi chạy campaign, truyền manifest tại my_workspace/INPUT/data/psy_external/manifest.json.
 
-## Cài dependency và chạy
+4. Cài dependency và chạy
 
 Từ gốc AAC-LC-23021839_Huong:
 

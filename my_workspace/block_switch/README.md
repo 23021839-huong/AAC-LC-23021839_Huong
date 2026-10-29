@@ -1,5 +1,5 @@
 # Block Switching: FDK native, reference và kiểm chứng
-
+![alt text](image.png)
 
 ## Trạng thái kiểm chứng hiện tại
 
